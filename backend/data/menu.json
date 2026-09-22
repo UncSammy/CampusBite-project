@@ -1,0 +1,23 @@
+[
+  {
+    "id": 1,
+    "name": "Chicken Burger",
+    "description": "Grilled chicken burger with salad",
+    "price": 7.90,
+    "dietary": ["halal"]
+  },
+  {
+    "id": 2,
+    "name": "Beef Burger",
+    "description": "Beef burger with cheese and salad",
+    "price": 8.90,
+    "dietary": ["halal"]
+  },
+  {
+    "id": 3,
+    "name": "Vegetable Pasta",
+    "description": "Pasta with vegetables and tomato sauce",
+    "price": 6.90,
+    "dietary": ["vegetarian"]
+  }
+]
