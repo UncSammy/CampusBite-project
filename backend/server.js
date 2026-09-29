@@ -1,27 +1,26 @@
 const express = require('express');
+const cors = require('cors');
 const db = require('./config/db');
 
 const {
   getCart,
   addToCart,
   removeFromCart,
-  clearCart,
+  clearCart
 } = require('./cart/cart');
 
 const {
   createOrder,
   getOrders,
   getOrderById,
-  updateOrderStatus,
+  updateOrderStatus
 } = require('./orders/order');
 
 const app = express();
 const PORT = 3000;
 
-// ==========================================
-// MIDDLEWARE
-// ==========================================
-
+// Middleware
+app.use(cors());
 app.use(express.json());
 
 
@@ -31,7 +30,7 @@ app.use(express.json());
 
 app.get('/', (req, res) => {
   res.json({
-    message: 'CampusBite API is running',
+    message: 'CampusBite API is running'
   });
 });
 
@@ -40,45 +39,194 @@ app.get('/', (req, res) => {
 // MENU API
 // ==========================================
 
-// Get all available menu items from MariaDB
+// Get all menu items
 app.get('/api/menu', async (req, res) => {
   try {
-    const [rows] = await db.query(`
-      SELECT
-        id,
-        name,
-        description,
-        price,
-        category,
-        weekday,
-        dietary,
-        available,
-        image_url
-      FROM menu_items
-      WHERE available = TRUE
-      ORDER BY id
-    `);
+    const [rows] = await db.query(
+      'SELECT * FROM menu_items WHERE available = TRUE ORDER BY id'
+    );
 
-    // Convert database values to frontend-friendly JSON
-    const menu = rows.map((item) => ({
+    const menu = rows.map(item => ({
       ...item,
       price: Number(item.price),
-
-      // Database stores dietary values as comma-separated text.
-      // API returns them as an array.
       dietary: item.dietary
-        ? item.dietary.split(',').map((diet) => diet.trim())
+        ? item.dietary.split(',').map(diet => diet.trim())
         : [],
-
-      available: Boolean(item.available),
+      available: Boolean(item.available)
     }));
 
     res.json(menu);
   } catch (error) {
-    console.error('Failed to fetch menu:', error);
+    console.error(error);
 
     res.status(500).json({
-      error: 'Could not load menu from database',
+      error: 'Could not load menu'
+    });
+  }
+});
+
+
+// Add menu item
+app.post('/api/menu', async (req, res) => {
+  try {
+    const {
+      name,
+      description,
+      price,
+      category,
+      weekday,
+      dietary
+    } = req.body;
+
+    if (!name || price === undefined) {
+      return res.status(400).json({
+        error: 'Name and price are required'
+      });
+    }
+
+    const foodPrice = Number(price);
+
+    if (Number.isNaN(foodPrice) || foodPrice < 0) {
+      return res.status(400).json({
+        error: 'Invalid price'
+      });
+    }
+
+    const diet = Array.isArray(dietary)
+      ? dietary.join(',')
+      : dietary || null;
+
+    const [result] = await db.query(
+      `INSERT INTO menu_items
+      (name, description, price, category, weekday, dietary)
+      VALUES (?, ?, ?, ?, ?, ?)`,
+      [
+        name,
+        description || null,
+        foodPrice,
+        category || 'Lunch',
+        weekday || null,
+        diet
+      ]
+    );
+
+    res.status(201).json({
+      message: 'Menu item added',
+      id: result.insertId
+    });
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).json({
+      error: 'Could not add menu item'
+    });
+  }
+});
+
+
+// Edit menu item
+app.put('/api/menu/:id', async (req, res) => {
+  try {
+    const menuId = Number(req.params.id);
+
+    const {
+      name,
+      description,
+      price,
+      category,
+      weekday,
+      dietary
+    } = req.body;
+
+    if (Number.isNaN(menuId)) {
+      return res.status(400).json({
+        error: 'Invalid menu ID'
+      });
+    }
+
+    if (!name || price === undefined) {
+      return res.status(400).json({
+        error: 'Name and price are required'
+      });
+    }
+
+    const foodPrice = Number(price);
+
+    if (Number.isNaN(foodPrice) || foodPrice < 0) {
+      return res.status(400).json({
+        error: 'Invalid price'
+      });
+    }
+
+    const diet = Array.isArray(dietary)
+      ? dietary.join(',')
+      : dietary || null;
+
+    const [result] = await db.query(
+      `UPDATE menu_items
+       SET name = ?, description = ?, price = ?,
+       category = ?, weekday = ?, dietary = ?
+       WHERE id = ?`,
+      [
+        name,
+        description || null,
+        foodPrice,
+        category || 'Lunch',
+        weekday || null,
+        diet,
+        menuId
+      ]
+    );
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({
+        error: 'Menu item not found'
+      });
+    }
+
+    res.json({
+      message: 'Menu item updated'
+    });
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).json({
+      error: 'Could not update menu item'
+    });
+  }
+});
+
+
+// Delete menu item
+app.delete('/api/menu/:id', async (req, res) => {
+  try {
+    const menuId = Number(req.params.id);
+
+    if (Number.isNaN(menuId)) {
+      return res.status(400).json({
+        error: 'Invalid menu ID'
+      });
+    }
+
+    const [result] = await db.query(
+      'DELETE FROM menu_items WHERE id = ?',
+      [menuId]
+    );
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({
+        error: 'Menu item not found'
+      });
+    }
+
+    res.json({
+      message: 'Menu item deleted'
+    });
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).json({
+      error: 'Could not delete menu item'
     });
   }
 });
@@ -105,7 +253,7 @@ app.post('/api/cart', (req, res) => {
     product.price === undefined
   ) {
     return res.status(400).json({
-      error: 'Product information is required',
+      error: 'Product information is required'
     });
   }
 
@@ -114,7 +262,7 @@ app.post('/api/cart', (req, res) => {
     (!Number.isInteger(quantity) || quantity <= 0)
   ) {
     return res.status(400).json({
-      error: 'Quantity must be a positive integer',
+      error: 'Quantity must be a positive integer'
     });
   }
 
@@ -133,7 +281,7 @@ app.delete('/api/cart/:id', (req, res) => {
 
   if (Number.isNaN(productId)) {
     return res.status(400).json({
-      error: 'Invalid product ID',
+      error: 'Invalid product ID'
     });
   }
 
@@ -155,7 +303,7 @@ app.delete('/api/cart', (req, res) => {
 // ORDERS API
 // ==========================================
 
-// Create a new order
+// Create order
 app.post('/api/orders', (req, res) => {
   const { items } = req.body;
 
@@ -165,7 +313,7 @@ app.post('/api/orders', (req, res) => {
     items.length === 0
   ) {
     return res.status(400).json({
-      error: 'Order must contain at least one item',
+      error: 'Order must contain at least one item'
     });
   }
 
@@ -181,13 +329,13 @@ app.get('/api/orders', (req, res) => {
 });
 
 
-// Get one order by ID
+// Get order by ID
 app.get('/api/orders/:id', (req, res) => {
   const orderId = Number(req.params.id);
 
   if (Number.isNaN(orderId)) {
     return res.status(400).json({
-      error: 'Invalid order ID',
+      error: 'Invalid order ID'
     });
   }
 
@@ -195,7 +343,7 @@ app.get('/api/orders/:id', (req, res) => {
 
   if (!order) {
     return res.status(404).json({
-      error: 'Order not found',
+      error: 'Order not found'
     });
   }
 
@@ -208,35 +356,32 @@ app.put('/api/orders/:id/status', (req, res) => {
   const orderId = Number(req.params.id);
   const { status } = req.body;
 
-  if (Number.isNaN(orderId)) {
-    return res.status(400).json({
-      error: 'Invalid order ID',
-    });
-  }
-
   const allowedStatuses = [
     'Pending',
     'Preparing',
     'Ready',
     'Completed',
-    'Cancelled',
+    'Cancelled'
   ];
+
+  if (Number.isNaN(orderId)) {
+    return res.status(400).json({
+      error: 'Invalid order ID'
+    });
+  }
 
   if (!allowedStatuses.includes(status)) {
     return res.status(400).json({
       error: 'Invalid order status',
-      allowedStatuses,
+      allowedStatuses
     });
   }
 
-  const order = updateOrderStatus(
-    orderId,
-    status
-  );
+  const order = updateOrderStatus(orderId, status);
 
   if (!order) {
     return res.status(404).json({
-      error: 'Order not found',
+      error: 'Order not found'
     });
   }
 
