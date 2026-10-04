@@ -1,0 +1,713 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap');
+
+:root {
+  font-family: 'DM Sans', sans-serif;
+  color: #18352d;
+  background: #f8f4eb;
+  font-synthesis: none;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  background: #f8f4eb;
+}
+
+button,
+a {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.navbar {
+  width: min(1180px, 90%);
+  height: 90px;
+  margin: auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.logo {
+  font-family: 'Manrope', sans-serif;
+  font-size: 1.45rem;
+  font-weight: 800;
+  letter-spacing: -1px;
+}
+
+.logo span {
+  color: #e86f45;
+}
+
+.nav-links {
+  display: flex;
+  gap: 2rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.nav-links a {
+  transition: 0.2s ease;
+}
+
+.nav-links a:hover {
+  color: #e86f45;
+}
+
+.login-button {
+  border: 1px solid #18352d;
+  background: transparent;
+  color: #18352d;
+  padding: 0.7rem 1.25rem;
+  border-radius: 999px;
+  font-weight: 700;
+  transition: 0.2s ease;
+}
+
+.login-button:hover {
+  background: #18352d;
+  color: white;
+}
+
+.hero {
+  width: min(1180px, 90%);
+  min-height: 650px;
+  margin: auto;
+  display: grid;
+  grid-template-columns: 1.05fr 0.95fr;
+  align-items: center;
+  gap: 5rem;
+  padding: 4rem 0 6rem;
+}
+
+.eyebrow {
+  color: #e86f45;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 2px;
+}
+
+.hero h1 {
+  font-family: 'Manrope', sans-serif;
+  font-size: clamp(3.7rem, 7vw, 6.5rem);
+  line-height: 0.95;
+  letter-spacing: -5px;
+  margin: 1rem 0 1.7rem;
+}
+
+.hero h1 span {
+  color: #e86f45;
+}
+
+.hero-content > p {
+  max-width: 570px;
+  color: #64726d;
+  font-size: 1.08rem;
+  line-height: 1.8;
+}
+
+.hero-actions {
+  display: flex;
+  gap: 1rem;
+  margin: 2rem 0 3rem;
+}
+
+.primary-button,
+.secondary-button {
+  border-radius: 999px;
+  padding: 0.9rem 1.5rem;
+  font-weight: 700;
+}
+
+.primary-button {
+  border: none;
+  background: #18352d;
+  color: white;
+  display: flex;
+  gap: 1.5rem;
+  align-items: center;
+}
+
+.primary-button:hover {
+  transform: translateY(-2px);
+}
+
+.secondary-button {
+  border: 1px solid #d5d0c6;
+}
+
+.hero-details {
+  display: flex;
+  gap: 2.5rem;
+}
+
+.hero-details div {
+  display: flex;
+  flex-direction: column;
+}
+
+.hero-details strong {
+  font-size: 0.95rem;
+}
+
+.hero-details span {
+  color: #89918d;
+  font-size: 0.78rem;
+  margin-top: 0.2rem;
+}
+
+.hero-visual {
+  position: relative;
+}
+
+.visual-card {
+  min-height: 490px;
+  padding: 2rem;
+  background: #dce8d4;
+  border-radius: 35px;
+  transform: rotate(2deg);
+}
+
+.visual-label {
+  display: inline-block;
+  background: white;
+  border-radius: 999px;
+  padding: 0.5rem 0.8rem;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 1px;
+}
+
+.plate {
+  height: 330px;
+  display: grid;
+  place-items: center;
+}
+
+.plate span {
+  font-size: 11rem;
+  filter: drop-shadow(0 25px 20px rgba(0, 0, 0, 0.15));
+}
+
+.visual-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+}
+
+.visual-info small {
+  color: #64726d;
+}
+
+.visual-info h3 {
+  max-width: 260px;
+  margin: 0.3rem 0 0;
+  font-family: 'Manrope', sans-serif;
+}
+
+.rating {
+  background: #18352d;
+  color: white;
+  padding: 0.6rem 0.8rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+}
+
+.pickup-badge {
+  position: absolute;
+  bottom: 45px;
+  left: -45px;
+  background: white;
+  padding: 1rem 1.3rem;
+  border-radius: 16px;
+  display: flex;
+  gap: 0.8rem;
+  align-items: center;
+  box-shadow: 0 15px 45px rgba(30, 50, 40, 0.13);
+}
+
+.pickup-badge > span {
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: #e86f45;
+  color: white;
+}
+
+.pickup-badge div {
+  display: flex;
+  flex-direction: column;
+}
+
+.pickup-badge small {
+  color: #89918d;
+}
+
+.menu-section {
+  background: #173a31;
+  color: white;
+  padding: 7rem max(5%, calc((100% - 1180px) / 2));
+}
+
+.section-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  gap: 2rem;
+  margin-bottom: 3rem;
+}
+
+.section-heading h2 {
+  font-family: 'Manrope', sans-serif;
+  font-size: clamp(2.3rem, 5vw, 4rem);
+  letter-spacing: -2px;
+  margin: 0.6rem 0 0;
+}
+
+.section-heading > p {
+  max-width: 420px;
+  color: #b9c5c1;
+  line-height: 1.7;
+}
+
+.menu-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.4rem;
+}
+
+.menu-card {
+  overflow: hidden;
+  background: #fffdf7;
+  color: #18352d;
+  border-radius: 24px;
+  transition: transform 0.25s ease;
+}
+
+.menu-card:hover {
+  transform: translateY(-8px);
+}
+
+.food-placeholder {
+  height: 250px;
+  position: relative;
+  display: grid;
+  place-items: center;
+}
+
+.food-placeholder > span {
+  font-size: 7rem;
+}
+
+.food-1 {
+  background: #eed7b9;
+}
+
+.food-2 {
+  background: #d8e1c9;
+}
+
+.food-3 {
+  background: #e8c9a8;
+}
+
+.dietary-container {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+}
+
+.dietary-tag {
+  display: inline-block;
+  background: white;
+  color: #18352d;
+  padding: 0.45rem 0.7rem;
+  border-radius: 999px;
+  margin-right: 0.35rem;
+  font-size: 0.68rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.card-content {
+  padding: 1.5rem;
+}
+
+.card-title {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.card-title h3 {
+  margin: 0;
+  font-family: 'Manrope', sans-serif;
+}
+
+.card-title strong {
+  color: #e86f45;
+}
+
+.card-content > p {
+  color: #78817e;
+  line-height: 1.6;
+  min-height: 52px;
+}
+
+.add-button {
+  width: 100%;
+  border: 1px solid #dcded9;
+  background: transparent;
+  border-radius: 999px;
+  padding: 0.75rem 1rem;
+  display: flex;
+  justify-content: space-between;
+  font-weight: 700;
+}
+
+.add-button:hover {
+  background: #18352d;
+  color: white;
+}
+
+.how-section {
+  width: min(1180px, 90%);
+  margin: auto;
+  padding: 7rem 0;
+}
+
+.steps {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+
+.steps article {
+  border-top: 1px solid #c9c6bd;
+  padding: 2rem 1rem 2rem 0;
+}
+
+.step-number {
+  color: #e86f45;
+  font-size: 0.8rem;
+  font-weight: 800;
+}
+
+.steps h3 {
+  font-family: 'Manrope', sans-serif;
+  margin-top: 2.5rem;
+}
+
+.steps p {
+  color: #78817e;
+  line-height: 1.6;
+}
+
+.status-message,
+.error-message {
+  text-align: center;
+  padding: 2rem;
+}
+
+.error-message {
+  color: #ffc5b2;
+}
+
+footer {
+  background: #102c25;
+  color: white;
+  padding: 3rem max(5%, calc((100% - 1180px) / 2));
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+footer p,
+footer small {
+  color: #a9b9b4;
+}
+
+@media (max-width: 850px) {
+  .nav-links {
+    display: none;
+  }
+
+  .hero {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+    padding-top: 3rem;
+  }
+
+  .hero h1 {
+    letter-spacing: -3px;
+  }
+
+  .hero-visual {
+    max-width: 600px;
+  }
+
+  .pickup-badge {
+    left: 15px;
+  }
+
+  .menu-grid,
+  .steps {
+    grid-template-columns: 1fr;
+  }
+
+  .section-heading {
+    display: block;
+  }
+
+  .hero-details {
+    flex-wrap: wrap;
+  }
+
+  footer {
+    flex-direction: column;
+    text-align: center;
+    gap: 0.8rem;
+  }
+}
+
+@media (max-width: 500px) {
+  .navbar {
+    height: 75px;
+  }
+
+  .hero {
+    width: 92%;
+    padding-bottom: 4rem;
+  }
+
+  .hero-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .primary-button {
+    justify-content: space-between;
+  }
+
+  .secondary-button {
+    text-align: center;
+  }
+
+  .visual-card {
+    min-height: 400px;
+  }
+
+  .plate {
+    height: 260px;
+  }
+
+  .plate span {
+    font-size: 8rem;
+  }
+}
+
+/* Admin */
+
+.admin-form-card {
+  margin-bottom: 48px;
+  padding: 32px;
+  background: #ffffff;
+  border: 1px solid rgba(23, 38, 31, 0.1);
+  border-radius: 24px;
+  box-shadow: 0 18px 50px rgba(23, 38, 31, 0.08);
+}
+
+.admin-form-heading {
+  margin-bottom: 24px;
+}
+
+.admin-form-heading h3 {
+  margin: 6px 0 0;
+  font-size: 1.7rem;
+}
+
+.admin-form {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-group-wide {
+  grid-column: 1 / -1;
+}
+
+.form-group label {
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.form-group input,
+.form-group select {
+  width: 100%;
+  padding: 14px 16px;
+  border: 1px solid rgba(23, 38, 31, 0.16);
+  border-radius: 12px;
+  background: #ffffff;
+  font: inherit;
+  outline: none;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  border-color: #2f7658;
+}
+
+.form-actions {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.admin-card-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: auto;
+}
+
+.admin-card-actions .add-button {
+  flex: 1;
+}
+
+.delete-button {
+  padding: 12px 18px;
+  border: 1px solid #d8b0b0;
+  border-radius: 12px;
+  background: #fff7f7;
+  color: #a33a3a;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.delete-button:hover {
+  background: #a33a3a;
+  color: white;
+}
+
+@media (max-width: 700px) {
+  .admin-form {
+    grid-template-columns: 1fr;
+  }
+
+  .form-group-wide,
+  .form-actions {
+    grid-column: auto;
+  }
+
+  .admin-form-card {
+    padding: 22px;
+  }
+}
+/* Admin form visibility fix */
+
+.admin-form-card {
+  color: #173c32;
+}
+
+.form-group label {
+  display: block;
+  color: #173c32;
+  font-size: 0.85rem;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.form-group input,
+.form-group select {
+  color: #173c32 !important;
+  background-color: #ffffff !important;
+  opacity: 1;
+}
+
+.form-group input::placeholder {
+  color: #777;
+  opacity: 1;
+}
+
+.form-group select option {
+  color: #173c32;
+  background: #ffffff;
+}
+
+.admin-form-heading h3 {
+  color: #173c32;
+}
+
+/* Admin edit/delete button fix */
+
+.admin-card-actions .add-button {
+  flex: 1;
+  background: #173c32;
+  color: #ffffff;
+  border: 1px solid #173c32;
+}
+
+.admin-card-actions .add-button span {
+  color: #ffffff;
+}
+
+.admin-card-actions .add-button:hover {
+  background: #245847;
+  color: #ffffff;
+}
+
+.delete-button {
+  background: #fff7f7;
+  color: #a33a3a;
+  border: 1px solid #e2aaaa;
+}
+
+.delete-button:hover {
+  background: #a33a3a;
+  color: #ffffff;
+}
+/* Add to order button visibility */
+
+.menu-section .menu-card .add-button {
+  width: 100%;
+  background: #173c32;
+  color: #ffffff;
+  border: 1px solid #173c32;
+}
+
+.menu-section .menu-card .add-button span {
+  color: #ffffff;
+}
+
+.menu-section .menu-card .add-button:hover {
+  background: #245847;
+  color: #ffffff;
+  border-color: #245847;
+}

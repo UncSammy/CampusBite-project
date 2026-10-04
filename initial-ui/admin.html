@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Admin | CampusBite</title>
+
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+    <!-- Navigation -->
+    <header>
+        <nav class="navbar">
+
+            <a href="index.html" class="logo">
+                Campus<span>Bite</span>
+            </a>
+
+            <div class="nav-links">
+                <a href="index.html">Home</a>
+                <a href="menu.html">Menu</a>
+                <a href="index.html#how-it-works">
+                    How it works
+                </a>
+                <a href="admin.html">Admin</a>
+            </div>
+
+            <a href="cart.html" class="cart-button">
+                Cart (0)
+            </a>
+
+            <button class="login-button">
+                Sign in
+            </button>
+
+        </nav>
+    </header>
+
+
+    <main>
+
+        <section class="admin-page">
+
+            <!-- Page heading -->
+            <div class="section-heading">
+
+                <div>
+
+                    <span class="eyebrow">
+                        ADMIN PANEL
+                    </span>
+
+                    <h2>
+                        Manage menu
+                    </h2>
+
+                </div>
+
+                <p>
+                    Add, edit and manage the meals
+                    available on CampusBite.
+                </p>
+
+            </div>
+
+
+            <!-- Add menu item -->
+            <div class="admin-form-card">
+
+                <div class="admin-form-heading">
+
+                    <h3>
+                        Add new menu item
+                    </h3>
+
+                </div>
+
+
+                <form class="admin-form">
+
+                    <!-- Name -->
+                    <div class="form-group">
+
+                        <label for="name">
+                            Meal name
+                        </label>
+
+                        <input
+                            type="text"
+                            id="name"
+                            name="name"
+                            placeholder="e.g. Chicken Burger"
+                        >
+
+                    </div>
+
+
+                    <!-- Price -->
+                    <div class="form-group">
+
+                        <label for="price">
+                            Price
+                        </label>
+
+                        <input
+                            type="number"
+                            id="price"
+                            name="price"
+                            placeholder="7.90"
+                            step="0.01"
+                        >
+
+                    </div>
+
+
+                    <!-- Category -->
+                    <div class="form-group">
+
+                        <label for="category">
+                            Category
+                        </label>
+
+                        <select id="category" name="category">
+
+                            <option value="">
+                                Select category
+                            </option>
+
+                            <option value="main">
+                                Main course
+                            </option>
+
+                            <option value="salad">
+                                Salad
+                            </option>
+
+                            <option value="pasta">
+                                Pasta
+                            </option>
+
+                            <option value="dessert">
+                                Dessert
+                            </option>
+
+                            <option value="drink">
+                                Drink
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <!-- Dietary -->
+                    <div class="form-group">
+
+                        <label for="dietary">
+                            Dietary option
+                        </label>
+
+                        <select id="dietary" name="dietary">
+
+                            <option value="">
+                                Select option
+                            </option>
+
+                            <option value="halal">
+                                Halal
+                            </option>
+
+                            <option value="vegetarian">
+                                Vegetarian
+                            </option>
+
+                            <option value="vegan">
+                                Vegan
+                            </option>
+
+                            <option value="none">
+                                No specific option
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <!-- Description -->
+                    <div class="form-group form-group-wide">
+
+                        <label for="description">
+                            Description
+                        </label>
+
+                        <input
+                            type="text"
+                            id="description"
+                            name="description"
+                            placeholder="Describe the meal..."
+                        >
+
+                    </div>
+
+
+                    <!-- Actions -->
+                    <div class="form-actions">
+
+                        <button
+                            type="reset"
+                            class="secondary-button"
+                        >
+                            Clear
+                        </button>
+
+                        <button
+                            type="submit"
+                            class="primary-button"
+                        >
+                            Add menu item
+                        </button>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+
+            <!-- Existing menu items -->
+            <div class="section-heading">
+
+                <div>
+
+                    <span class="eyebrow">
+                        CURRENT MENU
+                    </span>
+
+                    <h2>
+                        Menu items
+                    </h2>
+
+                </div>
+
+            </div>
+
+
+            <div class="menu-grid">
+
+                <!-- Item 1 -->
+                <article class="menu-card">
+
+                    <div class="food-placeholder">
+
+                        <span>🍔</span>
+
+                        <div class="dietary-container">
+
+                            <span class="dietary-tag">
+                                Halal
+                            </span>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="card-content">
+
+                        <div class="card-title">
+
+                            <h3>
+                                Chicken Burger
+                            </h3>
+
+                            <strong>
+                                €7.90
+                            </strong>
+
+                        </div>
+
+                        <p>
+                            Juicy chicken burger with fresh
+                            vegetables and sauce.
+                        </p>
+
+                        <div class="form-actions">
+
+                            <button
+                                class="secondary-button"
+                                type="button"
+                            >
+                                Edit
+                            </button>
+
+                            <button
+                                class="delete-button"
+                                type="button"
+                            >
+                                Delete
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </article>
+
+
+                <!-- Item 2 -->
+                <article class="menu-card">
+
+                    <div class="food-placeholder">
+
+                        <span>🍝</span>
+
+                        <div class="dietary-container">
+
+                            <span class="dietary-tag">
+                                Vegetarian
+                            </span>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="card-content">
+
+                        <div class="card-title">
+
+                            <h3>
+                                Creamy Pasta
+                            </h3>
+
+                            <strong>
+                                €8.50
+                            </strong>
+
+                        </div>
+
+                        <p>
+                            Creamy pasta with vegetables,
+                            herbs and parmesan.
+                        </p>
+
+                        <div class="form-actions">
+
+                            <button
+                                class="secondary-button"
+                                type="button"
+                            >
+                                Edit
+                            </button>
+
+                            <button
+                                class="delete-button"
+                                type="button"
+                            >
+                                Delete
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </article>
+
+
+                <!-- Item 3 -->
+                <article class="menu-card">
+
+                    <div class="food-placeholder">
+
+                        <span>🥗</span>
+
+                        <div class="dietary-container">
+
+                            <span class="dietary-tag">
+                                Vegan
+                            </span>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="card-content">
+
+                        <div class="card-title">
+
+                            <h3>
+                                Fresh Salad
+                            </h3>
+
+                            <strong>
+                                €6.90
+                            </strong>
+
+                        </div>
+
+                        <p>
+                            Fresh seasonal vegetables with
+                            a light dressing.
+                        </p>
+
+                        <div class="form-actions">
+
+                            <button
+                                class="secondary-button"
+                                type="button"
+                            >
+                                Edit
+                            </button>
+
+                            <button
+                                class="delete-button"
+                                type="button"
+                            >
+                                Delete
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </article>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <!-- Footer -->
+    <footer>
+
+        <a href="index.html" class="logo footer-logo">
+            Campus<span>Bite</span>
+        </a>
+
+        <p>
+            Fresh food for busy campus days.
+        </p>
+
+        <small>
+            © 2026 CampusBite
+        </small>
+
+    </footer>
+
+</body>
+</html>

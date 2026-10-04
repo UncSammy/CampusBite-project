@@ -1,6 +1,6 @@
 const express = require('express');
-const fs = require('fs');
-const path = require('path');
+const cors = require('cors');
+const db = require('./config/db');
 
 const {
   getCart,
@@ -20,6 +20,7 @@ const app = express();
 const PORT = 3000;
 
 // Middleware
+app.use(cors());
 app.use(express.json());
 
 
@@ -39,18 +40,193 @@ app.get('/', (req, res) => {
 // ==========================================
 
 // Get all menu items
-app.get('/api/menu', (req, res) => {
-  const menuPath = path.join(__dirname, 'data', 'menu.json');
-
+app.get('/api/menu', async (req, res) => {
   try {
-    const menu = JSON.parse(
-      fs.readFileSync(menuPath, 'utf8')
+    const [rows] = await db.query(
+      'SELECT * FROM menu_items WHERE available = TRUE ORDER BY id'
     );
+
+    const menu = rows.map(item => ({
+      ...item,
+      price: Number(item.price),
+      dietary: item.dietary
+        ? item.dietary.split(',').map(diet => diet.trim())
+        : [],
+      available: Boolean(item.available)
+    }));
 
     res.json(menu);
   } catch (error) {
+    console.error(error);
+
     res.status(500).json({
       error: 'Could not load menu'
+    });
+  }
+});
+
+
+// Add menu item
+app.post('/api/menu', async (req, res) => {
+  try {
+    const {
+      name,
+      description,
+      price,
+      category,
+      weekday,
+      dietary
+    } = req.body;
+
+    if (!name || price === undefined) {
+      return res.status(400).json({
+        error: 'Name and price are required'
+      });
+    }
+
+    const foodPrice = Number(price);
+
+    if (Number.isNaN(foodPrice) || foodPrice < 0) {
+      return res.status(400).json({
+        error: 'Invalid price'
+      });
+    }
+
+    const diet = Array.isArray(dietary)
+      ? dietary.join(',')
+      : dietary || null;
+
+    const [result] = await db.query(
+      `INSERT INTO menu_items
+      (name, description, price, category, weekday, dietary)
+      VALUES (?, ?, ?, ?, ?, ?)`,
+      [
+        name,
+        description || null,
+        foodPrice,
+        category || 'Lunch',
+        weekday || null,
+        diet
+      ]
+    );
+
+    res.status(201).json({
+      message: 'Menu item added',
+      id: result.insertId
+    });
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).json({
+      error: 'Could not add menu item'
+    });
+  }
+});
+
+
+// Edit menu item
+app.put('/api/menu/:id', async (req, res) => {
+  try {
+    const menuId = Number(req.params.id);
+
+    const {
+      name,
+      description,
+      price,
+      category,
+      weekday,
+      dietary
+    } = req.body;
+
+    if (Number.isNaN(menuId)) {
+      return res.status(400).json({
+        error: 'Invalid menu ID'
+      });
+    }
+
+    if (!name || price === undefined) {
+      return res.status(400).json({
+        error: 'Name and price are required'
+      });
+    }
+
+    const foodPrice = Number(price);
+
+    if (Number.isNaN(foodPrice) || foodPrice < 0) {
+      return res.status(400).json({
+        error: 'Invalid price'
+      });
+    }
+
+    const diet = Array.isArray(dietary)
+      ? dietary.join(',')
+      : dietary || null;
+
+    const [result] = await db.query(
+      `UPDATE menu_items
+       SET name = ?, description = ?, price = ?,
+       category = ?, weekday = ?, dietary = ?
+       WHERE id = ?`,
+      [
+        name,
+        description || null,
+        foodPrice,
+        category || 'Lunch',
+        weekday || null,
+        diet,
+        menuId
+      ]
+    );
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({
+        error: 'Menu item not found'
+      });
+    }
+
+    res.json({
+      message: 'Menu item updated'
+    });
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).json({
+      error: 'Could not update menu item'
+    });
+  }
+});
+
+
+// Delete menu item
+app.delete('/api/menu/:id', async (req, res) => {
+  try {
+    const menuId = Number(req.params.id);
+
+    if (Number.isNaN(menuId)) {
+      return res.status(400).json({
+        error: 'Invalid menu ID'
+      });
+    }
+
+    const [result] = await db.query(
+      'DELETE FROM menu_items WHERE id = ?',
+      [menuId]
+    );
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({
+        error: 'Menu item not found'
+      });
+    }
+
+    res.json({
+      message: 'Menu item deleted'
+    });
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).json({
+      error: 'Could not delete menu item'
     });
   }
 });
@@ -74,14 +250,17 @@ app.post('/api/cart', (req, res) => {
     !product ||
     !product.id ||
     !product.name ||
-    !product.price
+    product.price === undefined
   ) {
     return res.status(400).json({
       error: 'Product information is required'
     });
   }
 
-  if (quantity !== undefined && (!Number.isInteger(quantity) || quantity <= 0)) {
+  if (
+    quantity !== undefined &&
+    (!Number.isInteger(quantity) || quantity <= 0)
+  ) {
     return res.status(400).json({
       error: 'Quantity must be a positive integer'
     });
@@ -124,7 +303,7 @@ app.delete('/api/cart', (req, res) => {
 // ORDERS API
 // ==========================================
 
-// Create a new order
+// Create order
 app.post('/api/orders', (req, res) => {
   const { items } = req.body;
 
@@ -150,7 +329,7 @@ app.get('/api/orders', (req, res) => {
 });
 
 
-// Get one order by ID
+// Get order by ID
 app.get('/api/orders/:id', (req, res) => {
   const orderId = Number(req.params.id);
 
@@ -177,18 +356,19 @@ app.put('/api/orders/:id/status', (req, res) => {
   const orderId = Number(req.params.id);
   const { status } = req.body;
 
+  const allowedStatuses = [
+    'Pending',
+    'Preparing',
+    'Ready',
+    'Completed',
+    'Cancelled'
+  ];
+
   if (Number.isNaN(orderId)) {
     return res.status(400).json({
       error: 'Invalid order ID'
     });
   }
-
-  const allowedStatuses = [
-    'Pending',
-    'Preparing',
-    'Ready for pickup',
-    'Completed'
-  ];
 
   if (!allowedStatuses.includes(status)) {
     return res.status(400).json({
@@ -197,10 +377,7 @@ app.put('/api/orders/:id/status', (req, res) => {
     });
   }
 
-  const order = updateOrderStatus(
-    orderId,
-    status
-  );
+  const order = updateOrderStatus(orderId, status);
 
   if (!order) {
     return res.status(404).json({
