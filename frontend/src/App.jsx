@@ -2,8 +2,6 @@ import { useEffect, useState } from 'react';
 
 import './App.css';
 
-
-
 function App() {
 
   const [menu, setMenu] = useState([]);
@@ -13,8 +11,6 @@ function App() {
   const [error, setError] = useState('');
 
   const [showAdmin, setShowAdmin] = useState(false);
-
-
 
   const [form, setForm] = useState({
 
@@ -32,8 +28,6 @@ function App() {
 
   });
 
-
-
   const [editingId, setEditingId] = useState(null);
 
   const [adminMessage, setAdminMessage] = useState('');
@@ -42,7 +36,7 @@ function App() {
 
   const [cartMessage, setCartMessage] = useState('');
 
-
+  const [showCart, setShowCart] = useState(false);
 
   const fetchMenu = async () => {
 
@@ -52,23 +46,17 @@ function App() {
 
       setError('');
 
-
-
       const response = await fetch(
 
         'http://localhost:3000/api/menu'
 
       );
 
-
-
       if (!response.ok) {
 
         throw new Error('Could not load the menu.');
 
       }
-
-
 
       const data = await response.json();
 
@@ -86,27 +74,34 @@ function App() {
 
   };
 
+  const fetchCart = async () => {
+    try {
+      const response = await fetch('http://localhost:3000/api/cart');
+      const data = await response.json();
 
+      if (!response.ok) {
+        throw new Error(data.error || 'Could not load cart.');
+      }
+
+      setCart(data);
+    } catch (err) {
+      setCartMessage(err.message);
+    }
+  };
 
   useEffect(() => {
-
     fetchMenu();
-
+    fetchCart();
   }, []);
-
-
 
   const goHome = (event) => {
 
     event?.preventDefault();
 
-
-
     setShowAdmin(false);
+    setShowCart(false);
 
     setAdminMessage('');
-
-
 
     window.scrollTo({
 
@@ -117,54 +112,46 @@ function App() {
     });
 
   };
-
-
 
   const goToSection = (event, sectionId) => {
 
-    event.preventDefault();
+  event.preventDefault();
 
-    setShowAdmin(false);
+  setShowAdmin(false);
 
+  setShowCart(false);
 
+  setTimeout(() => {
 
-    setTimeout(() => {
+    document
 
-      document
+      .getElementById(sectionId)
 
-        .getElementById(sectionId)
+      ?.scrollIntoView({ behavior: 'smooth' });
 
-        ?.scrollIntoView({ behavior: 'smooth' });
+  }, 0);
 
-    }, 0);
+};
 
-  };
+const openAdmin = (event) => {
 
+  event.preventDefault();
 
+  setShowCart(false);
 
-  const openAdmin = (event) => {
+  setShowAdmin(true);
 
-    event.preventDefault();
+  setAdminMessage('');
 
+  window.scrollTo({
 
+    top: 0,
 
-    setShowAdmin(true);
+    behavior: 'smooth'
 
-    setAdminMessage('');
+  });
 
-
-
-    window.scrollTo({
-
-      top: 0,
-
-      behavior: 'smooth'
-
-    });
-
-  };
-
-
+};
 
   const scrollToMenu = () => {
 
@@ -176,13 +163,9 @@ function App() {
 
   };
 
-
-
   const handleFormChange = (event) => {
 
     const { name, value } = event.target;
-
-
 
     setForm({
 
@@ -193,8 +176,6 @@ function App() {
     });
 
   };
-
-
 
   const resetForm = () => {
 
@@ -214,25 +195,17 @@ function App() {
 
     });
 
-
-
     setEditingId(null);
 
   };
-
-
 
   const handleSubmit = async (event) => {
 
     event.preventDefault();
 
-
-
     try {
 
       setAdminMessage('');
-
-
 
       const foodData = {
 
@@ -254,13 +227,9 @@ function App() {
 
       };
 
-
-
       let url = 'http://localhost:3000/api/menu';
 
       let method = 'POST';
-
-
 
       if (editingId) {
 
@@ -269,8 +238,6 @@ function App() {
         method = 'PUT';
 
       }
-
-
 
       const response = await fetch(url, {
 
@@ -286,11 +253,7 @@ function App() {
 
       });
 
-
-
       const data = await response.json();
-
-
 
       if (!response.ok) {
 
@@ -302,8 +265,6 @@ function App() {
 
       }
 
-
-
       if (editingId) {
 
         setAdminMessage('Food updated successfully!');
@@ -313,8 +274,6 @@ function App() {
         setAdminMessage('Food added successfully!');
 
       }
-
-
 
       resetForm();
 
@@ -328,13 +287,9 @@ function App() {
 
   };
 
-
-
   const handleEdit = (item) => {
 
     setEditingId(item.id);
-
-
 
     setForm({
 
@@ -352,11 +307,7 @@ function App() {
 
     });
 
-
-
     setAdminMessage('');
-
-
 
     window.scrollTo({
 
@@ -368,80 +319,309 @@ function App() {
 
   };
 
-
-
   const handleDelete = async (id) => {
+
     const shouldDelete = window.confirm(
+
       'Are you sure you want to delete this food?'
+
     );
 
     if (!shouldDelete) {
+
       return;
+
     }
 
     try {
+
       const response = await fetch(
+
         `http://localhost:3000/api/menu/${id}`,
+
         {
+
           method: 'DELETE'
+
         }
+
       );
 
       const data = await response.json();
 
       if (!response.ok) {
+
         throw new Error(
+
           data.error || 'Could not delete menu item.'
+
         );
+
       }
 
       if (editingId === id) {
+
         resetForm();
+
       }
 
       setAdminMessage('Food deleted successfully!');
+
       await fetchMenu();
+
     } catch (err) {
+
       setAdminMessage(err.message);
+
     }
+
   };
 
   const handleAddToCart = async (item) => {
+
     try {
+
       setCartMessage('');
 
       const response = await fetch(
+
         'http://localhost:3000/api/cart',
+
         {
+
           method: 'POST',
+
           headers: {
+
             'Content-Type': 'application/json'
+
           },
+
           body: JSON.stringify({
+
             product: {
+
               id: item.id,
+
               name: item.name,
+
               price: Number(item.price)
+
             },
+
             quantity: 1
+
           })
+
         }
+
       );
 
       const data = await response.json();
 
       if (!response.ok) {
+
         throw new Error(
+
           data.error || 'Could not add item to cart.'
+
         );
+
       }
 
       setCart(data);
+
       setCartMessage(`${item.name} added to order!`);
+
     } catch (err) {
+
       setCartMessage(err.message);
+
     }
+
   };
+
+  const handleQuantityChange = async (id, newQuantity) => {
+
+  if (newQuantity < 1) {
+
+    return;
+
+  }
+
+  try {
+
+    const response = await fetch(
+
+      `http://localhost:3000/api/cart/${id}`,
+
+      {
+
+        method: 'PATCH',
+
+        headers: {
+
+          'Content-Type': 'application/json'
+
+        },
+
+        body: JSON.stringify({
+
+          quantity: newQuantity
+
+        })
+
+      }
+
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+
+      throw new Error(
+
+        data.error || 'Could not update quantity.'
+
+      );
+
+    }
+
+    setCart(data);
+
+    setCartMessage('');
+
+  } catch (err) {
+
+    setCartMessage(err.message);
+
+  }
+
+};
+
+  const handleRemoveFromCart = async (id) => {
+
+  try {
+
+    const response = await fetch(
+
+      `http://localhost:3000/api/cart/${id}`,
+
+      {
+
+        method: 'DELETE'
+
+      }
+
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+
+      throw new Error('Could not remove item from cart.');
+
+    }
+
+    setCart(data);
+
+    setCartMessage('Item removed from cart.');
+
+  } catch (err) {
+
+    setCartMessage(err.message);
+
+  }
+
+};
+
+const handleClearCart = async () => {
+
+  try {
+
+    const response = await fetch(
+
+      'http://localhost:3000/api/cart',
+
+      {
+
+        method: 'DELETE'
+
+      }
+
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+
+      throw new Error('Could not clear cart.');
+
+    }
+
+    setCart(data);
+
+    setCartMessage('Cart cleared successfully!');
+
+  } catch (err) {
+
+    setCartMessage(err.message);
+
+  }
+
+};
+
+const handlePlaceOrder = async () => {
+  if (cart.length === 0) {
+    setCartMessage('Your cart is empty.');
+    return;
+  }
+
+  try {
+    setCartMessage('Placing order...');
+
+    const response = await fetch(
+      'http://localhost:3000/api/orders',
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          items: cart
+        })
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(
+        data.error || 'Could not place order.'
+      );
+    }
+
+    const clearResponse = await fetch(
+      'http://localhost:3000/api/cart',
+      { method: 'DELETE' }
+    );
+
+    const clearedCart = await clearResponse.json();
+
+    if (!clearResponse.ok) {
+      throw new Error(
+        'Order placed, but cart could not be cleared.'
+      );
+    }
+
+    setCart(clearedCart);
+    setCartMessage(
+      `Order placed successfully! Order ID: ${data.id}`
+    );
+  } catch (err) {
+    setCartMessage(err.message);
+  }
+};
 
   return (
 
@@ -463,8 +643,6 @@ function App() {
 
         </a>
 
-
-
         <div className="nav-links">
 
           <a href="#" onClick={goHome}>
@@ -472,8 +650,6 @@ function App() {
             Home
 
           </a>
-
-
 
           <a
 
@@ -491,8 +667,6 @@ function App() {
 
           </a>
 
-
-
           <a
 
             href="#how-it-works"
@@ -509,8 +683,6 @@ function App() {
 
           </a>
 
-
-
           <a
 
             href="#admin"
@@ -525,7 +697,27 @@ function App() {
 
         </div>
 
-        <button className="cart-button">
+        <button
+
+          className="cart-button"
+
+          onClick={() => {
+
+            setShowAdmin(false);
+
+            setShowCart(true);
+
+            window.scrollTo({
+
+              top: 0,
+
+              behavior: 'smooth'
+
+            });
+
+          }}
+
+        >
 
           Cart ({cart.length})
 
@@ -539,11 +731,165 @@ function App() {
 
       </nav>
 
-
-
       <main>
 
-        {showAdmin ? (
+        {showCart ? (
+
+  <section className="menu-section">
+
+    <div className="section-heading">
+
+      <div>
+
+        <span className="eyebrow">YOUR ORDER</span>
+
+        <h2>Shopping Cart</h2>
+
+      </div>
+
+    </div>
+
+    {cartMessage && (
+      <p className="status-message">{cartMessage}</p>
+    )}
+
+    {cart.length === 0 ? (
+
+      <p className="status-message">
+
+        Your cart is empty.
+
+      </p>
+
+    ) : (
+
+      <div>
+
+        {cart.map((item) => (
+
+          <div key={item.id}>
+
+            <h3>{item.name}</h3>
+
+            <div className="quantity-controls">
+
+  <button
+
+    onClick={() =>
+
+      handleQuantityChange(item.id, item.quantity - 1)
+
+    }
+
+    disabled={item.quantity <= 1}
+
+  >
+
+    −
+
+  </button>
+
+  <span>{item.quantity}</span>
+
+  <button
+
+    onClick={() =>
+
+      handleQuantityChange(item.id, item.quantity + 1)
+
+    }
+
+  >
+
+    +
+
+  </button>
+
+</div>
+
+            <strong>
+
+              €{(
+
+                Number(item.price) *
+
+                item.quantity
+
+              ).toFixed(2)}
+
+            </strong>
+
+            <button
+
+  className="remove-button"
+
+  onClick={() => handleRemoveFromCart(item.id)}
+
+>
+
+  Remove
+
+</button>
+
+          </div>
+
+        ))}
+
+        <div className="cart-total">
+
+  <h3>
+
+    Total: €
+
+    {cart
+
+      .reduce(
+
+        (total, item) =>
+
+          total + Number(item.price) * item.quantity,
+
+        0
+
+      )
+
+      .toFixed(2)}
+
+  </h3>
+
+</div>
+
+<button
+
+  className="delete-button"
+
+  onClick={handleClearCart}
+
+>
+
+  Clear Cart
+
+</button>
+
+<button
+
+  className="place-order-button"
+
+  onClick={handlePlaceOrder}
+
+>
+
+  Place Order
+
+</button>
+
+  </div>
+
+    )}
+
+  </section>
+
+) : showAdmin ? (
 
           <section
 
@@ -563,13 +909,9 @@ function App() {
 
                 </span>
 
-
-
                 <h2>Menu management</h2>
 
               </div>
-
-
 
               <p>
 
@@ -578,8 +920,6 @@ function App() {
               </p>
 
             </div>
-
-
 
             {adminMessage && (
 
@@ -591,8 +931,6 @@ function App() {
 
             )}
 
-
-
             <div className="admin-form-card">
 
               <div className="admin-form-heading">
@@ -602,8 +940,6 @@ function App() {
                   MENU EDITOR
 
                 </span>
-
-
 
                 <h3>
 
@@ -617,8 +953,6 @@ function App() {
 
               </div>
 
-
-
               <form
 
                 className="admin-form"
@@ -630,8 +964,6 @@ function App() {
                 <div className="form-group">
 
                   <label>Food name</label>
-
-
 
                   <input
 
@@ -651,13 +983,9 @@ function App() {
 
                 </div>
 
-
-
                 <div className="form-group">
 
                   <label>Price (€)</label>
-
-
 
                   <input
 
@@ -681,13 +1009,9 @@ function App() {
 
                 </div>
 
-
-
                 <div className="form-group form-group-wide">
 
                   <label>Description</label>
-
-
 
                   <input
 
@@ -705,13 +1029,9 @@ function App() {
 
                 </div>
 
-
-
                 <div className="form-group">
 
                   <label>Category</label>
-
-
 
                   <select
 
@@ -729,23 +1049,17 @@ function App() {
 
                     </option>
 
-
-
                     <option value="Lunch">
 
                       Lunch
 
                     </option>
 
-
-
                     <option value="Dinner">
 
                       Dinner
 
                     </option>
-
-
 
                     <option value="Snack">
 
@@ -757,13 +1071,9 @@ function App() {
 
                 </div>
 
-
-
                 <div className="form-group">
 
                   <label>Weekday</label>
-
-
 
                   <select
 
@@ -781,15 +1091,11 @@ function App() {
 
                     </option>
 
-
-
                     <option value="Tuesday">
 
                       Tuesday
 
                     </option>
-
-
 
                     <option value="Wednesday">
 
@@ -797,15 +1103,11 @@ function App() {
 
                     </option>
 
-
-
                     <option value="Thursday">
 
                       Thursday
 
                     </option>
-
-
 
                     <option value="Friday">
 
@@ -817,13 +1119,9 @@ function App() {
 
                 </div>
 
-
-
                 <div className="form-group">
 
                   <label>Dietary</label>
-
-
 
                   <select
 
@@ -841,15 +1139,11 @@ function App() {
 
                     </option>
 
-
-
                     <option value="halal">
 
                       Halal
 
                     </option>
-
-
 
                     <option value="vegetarian">
 
@@ -857,15 +1151,11 @@ function App() {
 
                     </option>
 
-
-
                     <option value="vegan">
 
                       Vegan
 
                     </option>
-
-
 
                     <option value="gluten-free">
 
@@ -876,8 +1166,6 @@ function App() {
                   </select>
 
                 </div>
-
-
 
                 <div className="form-actions">
 
@@ -895,8 +1183,6 @@ function App() {
 
                       : 'Add food'}
 
-
-
                     <span>
 
                       {editingId ? '✓' : '+'}
@@ -904,8 +1190,6 @@ function App() {
                     </span>
 
                   </button>
-
-
 
                   {editingId && (
 
@@ -931,8 +1215,6 @@ function App() {
 
             </div>
 
-
-
             {loading && (
 
               <p className="status-message">
@@ -943,8 +1225,6 @@ function App() {
 
             )}
 
-
-
             {error && (
 
               <p className="error-message">
@@ -954,8 +1234,6 @@ function App() {
               </p>
 
             )}
-
-
 
             {!loading && !error && (
 
@@ -991,8 +1269,6 @@ function App() {
 
                       </span>
 
-
-
                       <div className="dietary-container">
 
                         {item.dietary?.map((diet) => (
@@ -1015,15 +1291,11 @@ function App() {
 
                     </div>
 
-
-
                     <div className="card-content">
 
                       <div className="card-title">
 
                         <h3>{item.name}</h3>
-
-
 
                         <strong>
 
@@ -1033,11 +1305,7 @@ function App() {
 
                       </div>
 
-
-
                       <p>{item.description}</p>
-
-
 
                       <p>
 
@@ -1046,8 +1314,6 @@ function App() {
                         {item.weekday || 'Not set'}
 
                       </p>
-
-
 
                       <div className="admin-card-actions">
 
@@ -1068,8 +1334,6 @@ function App() {
                           <span>✎</span>
 
                         </button>
-
-
 
                         <button
 
@@ -1115,8 +1379,6 @@ function App() {
 
                 </span>
 
-
-
                 <h1>
 
                   Good food.
@@ -1127,8 +1389,6 @@ function App() {
 
                 </h1>
 
-
-
                 <p>
 
                   Fresh and affordable meals for busy campus
@@ -1138,8 +1398,6 @@ function App() {
                   pick up when it suits you.
 
                 </p>
-
-
 
                 <div className="hero-actions">
 
@@ -1157,8 +1415,6 @@ function App() {
 
                   </button>
 
-
-
                   <a
 
                     className="secondary-button"
@@ -1173,8 +1429,6 @@ function App() {
 
                 </div>
 
-
-
                 <div className="hero-details">
 
                   <div>
@@ -1185,8 +1439,6 @@ function App() {
 
                   </div>
 
-
-
                   <div>
 
                     <strong>Fast</strong>
@@ -1194,8 +1446,6 @@ function App() {
                     <span>Easy pickup</span>
 
                   </div>
-
-
 
                   <div>
 
@@ -1209,8 +1459,6 @@ function App() {
 
               </div>
 
-
-
               <div className="hero-visual">
 
                 <div className="visual-card">
@@ -1221,15 +1469,11 @@ function App() {
 
                   </span>
 
-
-
                   <div className="plate">
 
                     <span>🥗</span>
 
                   </div>
-
-
 
                   <div className="visual-info">
 
@@ -1245,8 +1489,6 @@ function App() {
 
                     </div>
 
-
-
                     <span className="rating">
 
                       ★ 4.8
@@ -1257,13 +1499,9 @@ function App() {
 
                 </div>
 
-
-
                 <div className="pickup-badge">
 
                   <span>✓</span>
-
-
 
                   <div>
 
@@ -1278,8 +1516,6 @@ function App() {
               </div>
 
             </section>
-
-
 
             <section
 
@@ -1299,13 +1535,9 @@ function App() {
 
                   </span>
 
-
-
                   <h2>Today's menu</h2>
 
                 </div>
-
-
 
                 <p>
 
@@ -1317,8 +1549,6 @@ function App() {
 
               </div>
 
-
-
               {loading && (
 
                 <p className="status-message">
@@ -1329,8 +1559,6 @@ function App() {
 
               )}
 
-
-
               {error && (
 
                 <p className="error-message">
@@ -1340,8 +1568,6 @@ function App() {
                 </p>
 
               )}
-
-
 
               {!loading && !error && (
 
@@ -1377,8 +1603,6 @@ function App() {
 
                         </span>
 
-
-
                         <div className="dietary-container">
 
                           {item.dietary?.map((diet) => (
@@ -1401,15 +1625,11 @@ function App() {
 
                       </div>
 
-
-
                       <div className="card-content">
 
                         <div className="card-title">
 
                           <h3>{item.name}</h3>
-
-
 
                           <strong>
 
@@ -1419,15 +1639,11 @@ function App() {
 
                         </div>
 
-
-
                         <p>{item.description}</p>
 
+                        <button
 
-
-                        <button 
-
-                        className="add-button" 
+                        className="add-button"
 
                         onClick={() => handleAddToCart(item)}>
 
@@ -1449,8 +1665,6 @@ function App() {
 
             </section>
 
-
-
             <section
 
               className="how-section"
@@ -1469,15 +1683,11 @@ function App() {
 
                   </span>
 
-
-
                   <h2>Lunch in three steps.</h2>
 
                 </div>
 
               </div>
-
-
 
               <div className="steps">
 
@@ -1489,11 +1699,7 @@ function App() {
 
                   </span>
 
-
-
                   <h3>Choose your food</h3>
-
-
 
                   <p>
 
@@ -1505,8 +1711,6 @@ function App() {
 
                 </article>
 
-
-
                 <article>
 
                   <span className="step-number">
@@ -1515,11 +1719,7 @@ function App() {
 
                   </span>
 
-
-
                   <h3>Place your order</h3>
-
-
 
                   <p>
 
@@ -1531,8 +1731,6 @@ function App() {
 
                 </article>
 
-
-
                 <article>
 
                   <span className="step-number">
@@ -1541,11 +1739,7 @@ function App() {
 
                   </span>
 
-
-
                   <h3>Pick it up</h3>
-
-
 
                   <p>
 
@@ -1567,8 +1761,6 @@ function App() {
 
       </main>
 
-
-
       <footer>
 
         <a
@@ -1585,11 +1777,7 @@ function App() {
 
         </a>
 
-
-
         <p>Fresh food for busy campus days.</p>
-
-
 
         <small>© 2026 CampusBite</small>
 
@@ -1600,7 +1788,5 @@ function App() {
   );
 
 }
-
-
 
 export default App;

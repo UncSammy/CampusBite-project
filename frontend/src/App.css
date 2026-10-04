@@ -711,3 +711,37 @@ footer small {
   color: #ffffff;
   border-color: #245847;
 }
+
+.place-order-button {
+  padding: 16px 24px;
+  margin-left: 12px;
+  border: none;
+  border-radius: 14px;
+  background: #ef6a47;
+  color: white;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.place-order-button:hover {
+  opacity: 0.9;
+}
+.remove-button {
+  padding: 6px 10px;
+  margin-left: 8px;
+  border: 1px solid #d8b0b0;
+  border-radius: 7px;
+  background: #fff7f7;
+  color: #a33a3a;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.remove-button:hover {
+  background: #a33a3a;
+  color: white;
+}

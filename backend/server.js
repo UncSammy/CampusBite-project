@@ -6,6 +6,7 @@ const {
   getCart,
   addToCart,
   removeFromCart,
+  updateCartQuantity,
   clearCart
 } = require('./cart/cart');
 
@@ -19,7 +20,11 @@ const {
 const app = express();
 const PORT = 3000;
 
-// Middleware
+
+// ==========================================
+// MIDDLEWARE
+// ==========================================
+
 app.use(cors());
 app.use(express.json());
 
@@ -275,6 +280,41 @@ app.post('/api/cart', (req, res) => {
 });
 
 
+// Update product quantity
+app.patch('/api/cart/:id', (req, res) => {
+  const productId = Number(req.params.id);
+  const { quantity } = req.body;
+
+  if (Number.isNaN(productId)) {
+    return res.status(400).json({
+      error: 'Invalid product ID'
+    });
+  }
+
+  if (
+    !Number.isInteger(quantity) ||
+    quantity <= 0
+  ) {
+    return res.status(400).json({
+      error: 'Quantity must be a positive integer'
+    });
+  }
+
+  const cart = updateCartQuantity(
+    productId,
+    quantity
+  );
+
+  if (!cart) {
+    return res.status(404).json({
+      error: 'Product not found in cart'
+    });
+  }
+
+  res.json(cart);
+});
+
+
 // Remove product from shopping cart
 app.delete('/api/cart/:id', (req, res) => {
   const productId = Number(req.params.id);
@@ -377,7 +417,10 @@ app.put('/api/orders/:id/status', (req, res) => {
     });
   }
 
-  const order = updateOrderStatus(orderId, status);
+  const order = updateOrderStatus(
+    orderId,
+    status
+  );
 
   if (!order) {
     return res.status(404).json({
