@@ -5,7 +5,9 @@ function getCart() {
 }
 
 function addToCart(product, quantity = 1) {
-  const existingItem = cart.find(item => item.id === product.id);
+  const existingItem = cart.find(
+    item => item.id === product.id
+  );
 
   if (existingItem) {
     existingItem.quantity += quantity;
@@ -20,7 +22,23 @@ function addToCart(product, quantity = 1) {
 }
 
 function removeFromCart(productId) {
-  cart = cart.filter(item => item.id !== productId);
+  cart = cart.filter(
+    item => item.id !== productId
+  );
+
+  return cart;
+}
+
+function updateCartQuantity(productId, quantity) {
+  const item = cart.find(
+    item => item.id === productId
+  );
+
+  if (!item) {
+    return null;
+  }
+
+  item.quantity = quantity;
 
   return cart;
 }
@@ -35,5 +53,6 @@ module.exports = {
   getCart,
   addToCart,
   removeFromCart,
+  updateCartQuantity,
   clearCart
 };
