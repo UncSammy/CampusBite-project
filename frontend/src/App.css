@@ -84,6 +84,15 @@ a {
   background: #18352d;
   color: white;
 }
+.admin-form .login-button {
+  color: white;
+  border-color: white;
+}
+
+.admin-form .login-button:hover {
+  background: white;
+  color: #18352d;
+}
 
 .hero {
   width: min(1180px, 90%);
@@ -744,4 +753,515 @@ footer small {
 .remove-button:hover {
   background: #a33a3a;
   color: white;
+}
+
+.menu-card.today-menu {
+  border: 3px solid #ef6a47;
+  position: relative;
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.18);
+}
+
+.menu-card.today-menu::before {
+  content: "TODAY";
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: #ef6a47;
+  color: white;
+  padding: 5px 9px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  z-index: 10;
+}
+.admin-form label {
+  display: block;
+  color: #ffffff;
+  font-weight: 600;
+  margin-bottom: 8px;
+  font-size: 14px;
+}
+
+.admin-form .form-group {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+
+.how-section .section-heading h2 {
+  color: #18352d;
+}
+
+/* HOW IT WORKS - STEP CARDS */
+
+.how-section {
+  padding: 6rem 4rem;
+}
+
+.how-section .section-heading {
+  margin-bottom: 3rem;
+}
+
+.steps {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+}
+
+.steps article {
+  background: #ffffff;
+  border: 1px solid rgba(24, 53, 45, 0.15);
+  border-radius: 24px;
+  padding: 2.5rem 2rem;
+  min-height: 240px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.steps article:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 18px 40px rgba(24, 53, 45, 0.12);
+}
+
+.step-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  margin-bottom: 1.5rem;
+  border-radius: 50%;
+  background: #f36c3d;
+  color: white;
+  font-weight: 800;
+}
+
+.steps article h3 {
+  color: #18352d;
+  font-size: 1.35rem;
+  margin: 0 0 0.8rem;
+}
+
+.steps article p {
+  color: #66706c;
+  line-height: 1.7;
+  margin: 0;
+}
+
+/* Tablet */
+@media (max-width: 900px) {
+  .how-section {
+    padding: 4rem 2rem;
+  }
+
+  .steps {
+    grid-template-columns: 1fr;
+  }
+
+  .steps article {
+    min-height: auto;
+  }
+}
+
+/* Mobile */
+@media (max-width: 600px) {
+  .how-section {
+    padding: 3rem 1.25rem;
+  }
+
+  .how-section .section-heading h2 {
+    font-size: 2.5rem;
+  }
+
+  .steps article {
+    padding: 2rem 1.5rem;
+  }
+}
+
+/* =====================================================
+   FINAL HOME HERO POLISH
+   Keep this block at the VERY END of App.css
+===================================================== */
+
+.hero {
+  width: min(1180px, 90%);
+  min-height: 680px;
+  margin: 0 auto;
+  padding: 5rem 0 6rem;
+
+  display: grid;
+  grid-template-columns: 1.05fr 0.95fr;
+  align-items: center;
+  gap: 5rem;
+}
+
+/* LEFT SIDE */
+.hero-content {
+  position: relative;
+  z-index: 2;
+}
+
+.hero-content .eyebrow {
+  display: inline-block;
+  margin-bottom: 1.25rem;
+
+  color: #e86f45;
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 2.4px;
+  text-transform: uppercase;
+}
+
+/* Main headline */
+.hero-content h1 {
+  max-width: 650px;
+  margin: 0 0 1.7rem;
+
+  font-family: 'Manrope', sans-serif;
+  font-size: clamp(4rem, 6.7vw, 6.4rem);
+  font-weight: 800;
+  line-height: 0.91;
+  letter-spacing: -5px;
+
+  color: #18352d !important;
+}
+
+/* Orange part: Zero wait. */
+.hero-content h1 span {
+  display: block;
+  color: #e86f45 !important;
+}
+
+/* Description */
+.hero-content > p {
+  max-width: 540px;
+  margin: 0;
+
+  color: #66736e !important;
+  font-size: 1.06rem;
+  line-height: 1.75;
+  text-align: left !important;
+}
+
+/* CTA area */
+.hero-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin: 2rem 0 3rem;
+}
+
+.hero-actions .primary-button,
+.hero-actions .secondary-button {
+  min-height: 52px;
+  padding: 0.9rem 1.55rem;
+  border-radius: 999px;
+
+  font-weight: 700;
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease,
+    background 0.25s ease;
+}
+
+.hero-actions .primary-button {
+  background: #18352d;
+  color: #ffffff;
+  border: 1px solid #18352d;
+  box-shadow: 0 10px 25px rgba(24, 53, 45, 0.13);
+}
+
+.hero-actions .primary-button:hover {
+  background: #244f43;
+  transform: translateY(-3px);
+  box-shadow: 0 15px 30px rgba(24, 53, 45, 0.2);
+}
+
+.hero-actions .secondary-button {
+  background: transparent;
+  color: #18352d;
+  border: 1px solid rgba(24, 53, 45, 0.22);
+}
+
+.hero-actions .secondary-button:hover {
+  background: #ffffff;
+  border-color: #18352d;
+  transform: translateY(-3px);
+}
+
+/* Fresh / Fast / Flexible */
+.hero-details {
+  display: flex;
+  gap: 3rem;
+}
+
+.hero-details div {
+  position: relative;
+}
+
+.hero-details strong {
+  color: #18352d;
+  font-size: 0.92rem;
+  font-weight: 800;
+}
+
+.hero-details span {
+  color: #89918d;
+  font-size: 0.78rem;
+}
+
+/* =====================================================
+   RIGHT FOOD CARD
+===================================================== */
+
+.hero-visual {
+  position: relative;
+  max-width: 500px;
+  width: 100%;
+  justify-self: end;
+}
+
+.visual-card {
+  position: relative;
+  min-height: 500px;
+  padding: 2.2rem;
+
+  background:
+    radial-gradient(
+      circle at 70% 20%,
+      rgba(255, 255, 255, 0.55),
+      transparent 28%
+    ),
+    #dce8d4;
+
+  border: 1px solid rgba(24, 53, 45, 0.08);
+  border-radius: 38px;
+
+  transform: rotate(1.5deg);
+
+  box-shadow:
+    0 30px 70px rgba(24, 53, 45, 0.13),
+    0 8px 20px rgba(24, 53, 45, 0.06);
+
+  transition:
+    transform 0.35s ease,
+    box-shadow 0.35s ease;
+}
+
+.visual-card:hover {
+  transform: rotate(0deg) translateY(-7px);
+
+  box-shadow:
+    0 38px 80px rgba(24, 53, 45, 0.17),
+    0 12px 25px rgba(24, 53, 45, 0.08);
+}
+
+.visual-label {
+  background: rgba(255, 255, 255, 0.92);
+  color: #18352d;
+
+  padding: 0.6rem 1rem;
+  border-radius: 999px;
+
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 1.4px;
+
+  box-shadow: 0 8px 25px rgba(24, 53, 45, 0.08);
+}
+
+/* Food emoji */
+.plate {
+  height: 330px;
+  display: grid;
+  place-items: center;
+}
+
+.plate span {
+  font-size: 10.5rem;
+
+  filter:
+    drop-shadow(0 25px 18px rgba(24, 53, 45, 0.16));
+
+  transition: transform 0.3s ease;
+}
+
+.visual-card:hover .plate span {
+  transform: scale(1.05) rotate(-2deg);
+}
+
+.visual-info h3 {
+  color: #18352d;
+  font-size: 1.25rem;
+}
+
+.rating {
+  background: #18352d;
+  color: white;
+
+  padding: 0.65rem 0.85rem;
+  border-radius: 999px;
+
+  box-shadow: 0 7px 18px rgba(24, 53, 45, 0.15);
+}
+
+/* =====================================================
+   FLOATING QUICK PICKUP BADGE
+===================================================== */
+
+.pickup-badge {
+  position: absolute;
+
+  left: -55px;
+  bottom: 48px;
+
+  min-width: 215px;
+
+  padding: 1rem 1.2rem;
+
+  background: rgba(255, 255, 255, 0.96);
+
+  border: 1px solid rgba(24, 53, 45, 0.08);
+  border-radius: 18px;
+
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+
+  z-index: 5;
+
+  box-shadow:
+    0 20px 50px rgba(24, 53, 45, 0.16);
+
+  backdrop-filter: blur(10px);
+}
+
+.pickup-badge > span {
+  flex: 0 0 38px;
+
+  width: 38px;
+  height: 38px;
+
+  display: grid;
+  place-items: center;
+
+  background: #e86f45;
+  color: white;
+
+  border-radius: 50%;
+}
+
+.pickup-badge strong {
+  color: #18352d;
+  font-size: 0.9rem;
+}
+
+.pickup-badge small {
+  margin-top: 3px;
+  color: #89918d;
+  font-size: 0.72rem;
+}
+
+/* =====================================================
+   TABLET
+===================================================== */
+
+@media (max-width: 900px) {
+
+  .hero {
+    grid-template-columns: 1fr;
+    gap: 4rem;
+
+    min-height: auto;
+    padding: 4rem 0 5rem;
+  }
+
+  .hero-content {
+    max-width: 680px;
+  }
+
+  .hero-content h1 {
+    font-size: clamp(3.8rem, 11vw, 6rem);
+  }
+
+  .hero-visual {
+    justify-self: center;
+    max-width: 600px;
+  }
+
+  .pickup-badge {
+    left: 20px;
+  }
+}
+
+/* =====================================================
+   MOBILE
+===================================================== */
+
+@media (max-width: 600px) {
+
+  .hero {
+    width: 90%;
+    padding: 3rem 0 4rem;
+    gap: 3rem;
+  }
+
+  .hero-content .eyebrow {
+    font-size: 0.68rem;
+  }
+
+  .hero-content h1 {
+    font-size: clamp(3.3rem, 16vw, 4.8rem);
+    line-height: 0.93;
+    letter-spacing: -3px;
+  }
+
+  .hero-content > p {
+    font-size: 0.98rem;
+    line-height: 1.7;
+  }
+
+  .hero-actions {
+    flex-direction: column;
+    align-items: stretch;
+    margin-bottom: 2.5rem;
+  }
+
+  .hero-actions .primary-button,
+  .hero-actions .secondary-button {
+    width: 100%;
+  }
+
+  .hero-details {
+    gap: 1.5rem;
+    justify-content: space-between;
+  }
+
+  .visual-card {
+    min-height: 420px;
+    padding: 1.5rem;
+    border-radius: 28px;
+    transform: none;
+  }
+
+  .plate {
+    height: 260px;
+  }
+
+  .plate span {
+    font-size: 8rem;
+  }
+
+  .pickup-badge {
+    left: 16px;
+    right: 16px;
+    bottom: -25px;
+
+    min-width: 0;
+    width: auto;
+  }
 }
