@@ -1,10 +1,13 @@
 import { useEffect, useState } from 'react';
 import './App.css';
+
 function App() {
   const [menu, setMenu] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+
   const [showAdmin, setShowAdmin] = useState(false);
+
   const [form, setForm] = useState({
     name: '',
     description: '',
@@ -13,29 +16,49 @@ function App() {
     weekday: 'Monday',
     dietary: ''
   });
+
   const [editingId, setEditingId] = useState(null);
   const [adminMessage, setAdminMessage] = useState('');
+
   const [cart, setCart] = useState([]);
   const [cartMessage, setCartMessage] = useState('');
   const [showCart, setShowCart] = useState(false);
+
   const [orders, setOrders] = useState([]);
   const [orderMessage, setOrderMessage] = useState('');
+
   const [showLogin, setShowLogin] = useState(false);
   const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(false);
+
   const [loginForm, setLoginForm] = useState({
-    username: '',
+    email: '',
     password: ''
   });
+const getAdminToken = () => {
+  return localStorage.getItem('adminToken');
+};
+
+const getAdminHeaders = (json = false) => {
+  const token = getAdminToken();
+
+  return {
+    ...(json ? { 'Content-Type': 'application/json' } : {}),
+    Authorization: `Bearer ${token}`
+  };
+};
   const [loginMessage, setLoginMessage] = useState('');
+
   const [showCustomerLogin, setShowCustomerLogin] = useState(false);
   const [showRegister, setShowRegister] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
+
   const [customerMessage, setCustomerMessage] = useState('');
+
   const [customerForm, setCustomerForm] = useState({
-  name: '',
-  email: '',
-  password: ''
-});
+    name: '',
+    email: '',
+    password: ''
+  });
   const fetchMenu = async () => {
     try {
       setLoading(true);
@@ -132,95 +155,114 @@ const openAdmin=async(event)=>{
     });
     setEditingId(null);
   };
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-    try {
-      setAdminMessage('');
-      const foodData = {
-        name: form.name,
-        description: form.description,
-        price: Number(form.price),
-        category: form.category,
-        weekday: form.weekday,
-        dietary: form.dietary
-          ? [form.dietary]
-          : []
-      };
-      let url = 'http://localhost:3000/api/menu';
-      let method = 'POST';
-      if (editingId) {
-        url = `http://localhost:3000/api/menu/${editingId}`;
-        method = 'PUT';
-      }
-      const response = await fetch(url, {
-        method,
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(foodData)
-      });
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(
-          data.error || 'Could not save menu item.'
-        );
-      }
-      if (editingId) {
-        setAdminMessage('Food updated successfully!');
-      } else {
-        setAdminMessage('Food added successfully!');
-      }
-      resetForm();
-      await fetchMenu();
-    } catch (err) {
-      setAdminMessage(err.message);
-    }
-  };
   const handleEdit = (item) => {
-    setEditingId(item.id);
-    setForm({
-      name: item.name || '',
-      description: item.description || '',
-      price: item.price || '',
-      category: item.category || 'Lunch',
-      weekday: item.weekday || 'Monday',
-      dietary: item.dietary?.[0] || ''
-    });
+  setEditingId(item.id);
+
+  setForm({
+    name: item.name || '',
+    description: item.description || '',
+    price: item.price || '',
+    category: item.category || 'Lunch',
+    weekday: item.weekday || 'Monday',
+    dietary: Array.isArray(item.dietary)
+      ? item.dietary[0] || ''
+      : item.dietary || ''
+  });
+
+  setAdminMessage('');
+
+  window.scrollTo({
+    top: 0,
+    behavior: 'smooth'
+  });
+};
+  const handleSubmit = async (event) => {
+  event.preventDefault();
+
+  try {
     setAdminMessage('');
-    window.scrollTo({
-      top: 0,
-      behavior: 'smooth'
+
+    const foodData = {
+      name: form.name,
+      description: form.description,
+      price: Number(form.price),
+      category: form.category,
+      weekday: form.weekday,
+      dietary: form.dietary
+        ? [form.dietary]
+        : []
+    };
+
+    let url = 'http://localhost:3000/api/menu';
+    let method = 'POST';
+
+    if (editingId) {
+      url = `http://localhost:3000/api/menu/${editingId}`;
+      method = 'PUT';
+    }
+
+    const response = await fetch(url, {
+      method,
+      headers: getAdminHeaders(true),
+      body: JSON.stringify(foodData)
     });
-  };
-  const handleDelete = async (id) => {
-    const shouldDelete = window.confirm(
-      'Are you sure you want to delete this food?'
-    );
-    if (!shouldDelete) {
-      return;
-    }
-    try {
-      const response = await fetch(
-        `http://localhost:3000/api/menu/${id}`,
-        {
-          method: 'DELETE'
-        }
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(
+        data.error || 'Could not save menu item.'
       );
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(
-          data.error || 'Could not delete menu item.'
-        );
-      }
-      if (editingId === id) {
-        resetForm();
-      }
-      setAdminMessage('Food deleted successfully!');
-      await fetchMenu();
-    } catch (err) {
-      setAdminMessage(err.message);
     }
-  };
+
+    if (editingId) {
+      setAdminMessage('Food updated successfully!');
+    } else {
+      setAdminMessage('Food added successfully!');
+    }
+
+    resetForm();
+    await fetchMenu();
+  } catch (err) {
+    setAdminMessage(err.message);
+  }
+};
+ const handleDelete = async (id) => {
+  const shouldDelete = window.confirm(
+    'Are you sure you want to delete this food?'
+  );
+
+  if (!shouldDelete) {
+    return;
+  }
+
+  try {
+    const response = await fetch(
+      `http://localhost:3000/api/menu/${id}`,
+      {
+        method: 'DELETE',
+        headers: getAdminHeaders()
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(
+        data.error || 'Could not delete menu item.'
+      );
+    }
+
+    if (editingId === id) {
+      resetForm();
+    }
+
+    setAdminMessage('Food deleted successfully!');
+    await fetchMenu();
+  } catch (err) {
+    setAdminMessage(err.message);
+  }
+};
   const handleAddToCart = async (item) => {
     try {
       setCartMessage('');
@@ -363,11 +405,19 @@ const handlePlaceOrder = async () => {
 };
 const fetchOrders = async () => {
   try {
-    const response = await fetch('http://localhost:3000/api/orders');
+    const response = await fetch(
+      'http://localhost:3000/api/orders',
+      {
+        headers: getAdminHeaders()
+      }
+    );
+
     const data = await response.json();
+
     if (!response.ok) {
       throw new Error(data.error || 'Could not load orders.');
     }
+
     setOrders(data);
   } catch (err) {
     setOrderMessage(err.message);
@@ -376,22 +426,24 @@ const fetchOrders = async () => {
 const handleOrderStatusChange = async (orderId, status) => {
   try {
     setOrderMessage('');
+
     const response = await fetch(
       `http://localhost:3000/api/orders/${orderId}/status`,
       {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json'
-        },
+        headers: getAdminHeaders(true),
         body: JSON.stringify({ status })
       }
     );
+
     const data = await response.json();
+
     if (!response.ok) {
       throw new Error(
         data.error || 'Could not update order status.'
       );
     }
+
     setOrderMessage('Order status updated.');
     await fetchOrders();
   } catch (err) {
@@ -455,6 +507,12 @@ const handleOrderStatusChange = async (orderId, status) => {
     window.scrollTo({top:0,behavior:'smooth'});
   }
 }}>
+  <button onClick={() => {
+  setShowCustomerLogin(false);
+  setShowRegister(true);
+}}>
+  Register
+</button>
   {currentUser?`Logout (${currentUser.name})`:'Sign in'}
 </button>
       </nav>
@@ -470,50 +528,71 @@ const handleOrderStatusChange = async (orderId, status) => {
     </div>
     <form
       className="admin-form"
-      onSubmit={(event) => {
-        event.preventDefault();
-        if (
-          loginForm.username === 'admin' &&
-          loginForm.password === 'admin123'
-        ) {
-          setIsAdminLoggedIn(true);
-          setShowLogin(false);
-          setShowAdmin(true);
-          setLoginMessage('');
-          fetchOrders();
-        } else {
-          setLoginMessage('Invalid username or password.');
-        }
-      }}
+     onSubmit={async (event) => {
+  event.preventDefault();
+  setLoginMessage('Logging in...');
+
+  try {
+    const response = await fetch(
+      'http://localhost:3000/api/admin/login',
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(loginForm)
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || 'Invalid email or password.');
+    }
+
+    localStorage.setItem('adminToken', data.token);
+
+    setIsAdminLoggedIn(true);
+    setShowLogin(false);
+    setShowAdmin(true);
+    setLoginMessage('');
+
+    await fetchOrders(data.token);
+  } catch (error) {
+    setLoginMessage(error.message);
+  }
+}}
     >
+     
       <div className="form-group">
-        <label>Username</label>
-        <input
-          type="text"
-          value={loginForm.username}
-          onChange={(event) =>
-            setLoginForm({
-              ...loginForm,
-              username: event.target.value
-            })
-          }
-          required
-        />
-      </div>
-      <div className="form-group">
-        <label>Password</label>
-        <input
-          type="password"
-          value={loginForm.password}
-          onChange={(event) =>
-            setLoginForm({
-              ...loginForm,
-              password: event.target.value
-            })
-          }
-          required
-        />
-      </div>
+  <label>Email</label>
+  <input
+    type="email"
+    value={loginForm.email}
+    onChange={(event) =>
+      setLoginForm({
+        ...loginForm,
+        email: event.target.value
+      })
+    }
+    required
+  />
+</div>
+<div className="form-group">
+  <label>Password</label>
+  <input
+    type="password"
+    value={loginForm.password}
+    onChange={(event) =>
+      setLoginForm({
+        ...loginForm,
+        password: event.target.value
+      })
+    }
+    required
+  />
+
+</div>
       {loginMessage && (
         <p className="status-message">{loginMessage}</p>
       )}

@@ -1,7 +1,9 @@
 const express = require('express');
 const cors = require('cors');
-const db = require('./config/db');
 const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+
+const db = require('./config/db');
 
 const {
   getCart,
@@ -21,18 +23,53 @@ const {
 const app = express();
 const PORT = 3000;
 
+const JWT_SECRET =
+  process.env.JWT_SECRET || 'campusbite-development-secret';
 
-// ==========================================
-// MIDDLEWARE
-// ==========================================
+/* ==========================================
+   MIDDLEWARE
+========================================== */
 
 app.use(cors());
 app.use(express.json());
 
+/* ==========================================
+   ADMIN AUTHENTICATION
+========================================== */
 
-// ==========================================
-// HOME
-// ==========================================
+function requireAdmin(req, res, next) {
+  try {
+    const authHeader = req.headers.authorization;
+
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return res.status(401).json({
+        error: 'Admin authentication required'
+      });
+    }
+
+    const token = authHeader.split(' ')[1];
+
+    const decoded = jwt.verify(token, JWT_SECRET);
+
+    if (decoded.role !== 'admin') {
+      return res.status(403).json({
+        error: 'Admin access required'
+      });
+    }
+
+    req.admin = decoded;
+
+    next();
+  } catch (error) {
+    return res.status(401).json({
+      error: 'Invalid or expired admin token'
+    });
+  }
+}
+
+/* ==========================================
+   HOME
+========================================== */
 
 app.get('/', (req, res) => {
   res.json({
@@ -40,11 +77,9 @@ app.get('/', (req, res) => {
   });
 });
 
-
-
-// ==========================================
-// CUSTOMER AUTH API
-// ==========================================
+/* ==========================================
+   CUSTOMER AUTH API
+========================================== */
 
 // Register customer
 app.post('/api/register', async (req, res) => {
@@ -77,8 +112,8 @@ app.post('/api/register', async (req, res) => {
     const passwordHash = await bcrypt.hash(password, 10);
 
     const [result] = await db.query(
-      `INSERT INTO users (name, email, password_hash)
-       VALUES (?, ?, ?)`,
+      `INSERT INTO users (name, email, password, role)
+       VALUES (?, ?, ?, 'student')`,
       [name, email, passwordHash]
     );
 
@@ -87,18 +122,18 @@ app.post('/api/register', async (req, res) => {
       user: {
         id: result.insertId,
         name,
-        email
+        email,
+        role: 'student'
       }
     });
   } catch (error) {
-    console.error(error);
+    console.error('Registration error:', error);
 
     res.status(500).json({
       error: 'Could not register user'
     });
   }
 });
-
 
 // Login customer
 app.post('/api/login', async (req, res) => {
@@ -126,7 +161,7 @@ app.post('/api/login', async (req, res) => {
 
     const passwordMatches = await bcrypt.compare(
       password,
-      user.password_hash
+      user.password
     );
 
     if (!passwordMatches) {
@@ -140,11 +175,12 @@ app.post('/api/login', async (req, res) => {
       user: {
         id: user.id,
         name: user.name,
-        email: user.email
+        email: user.email,
+        role: user.role
       }
     });
   } catch (error) {
-    console.error(error);
+    console.error('Customer login error:', error);
 
     res.status(500).json({
       error: 'Could not log in'
@@ -152,30 +188,107 @@ app.post('/api/login', async (req, res) => {
   }
 });
 
+/* ==========================================
+   ADMIN LOGIN
+========================================== */
 
-// ==========================================
-// MENU API
-// ==========================================
+app.post('/api/admin/login', async (req, res) => {
+  try {
+    const { email, password } = req.body;
 
-// Get all menu items
+    if (!email || !password) {
+      return res.status(400).json({
+        error: 'Email and password are required'
+      });
+    }
+
+    const [users] = await db.query(
+      `SELECT *
+       FROM users
+       WHERE email = ?
+       AND role = 'admin'`,
+      [email]
+    );
+
+    if (users.length === 0) {
+      return res.status(401).json({
+        error: 'Invalid admin credentials'
+      });
+    }
+
+    const user = users[0];
+
+    const passwordMatches = await bcrypt.compare(
+      password,
+      user.password
+    );
+
+    if (!passwordMatches) {
+      return res.status(401).json({
+        error: 'Invalid admin credentials'
+      });
+    }
+
+    const token = jwt.sign(
+      {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role
+      },
+      JWT_SECRET,
+      {
+        expiresIn: '2h'
+      }
+    );
+
+    res.json({
+      message: 'Admin login successful',
+      token,
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role
+      }
+    });
+  } catch (error) {
+    console.error('Admin login error:', error);
+
+    res.status(500).json({
+      error: 'Could not log in as admin'
+    });
+  }
+});
+
+/* ==========================================
+   MENU API
+========================================== */
+
+// Get all available menu items
 app.get('/api/menu', async (req, res) => {
   try {
     const [rows] = await db.query(
-      'SELECT * FROM menu_items WHERE available = TRUE ORDER BY id'
+      `SELECT *
+       FROM menu_items
+       WHERE available = TRUE
+       ORDER BY id`
     );
 
     const menu = rows.map(item => ({
       ...item,
       price: Number(item.price),
       dietary: item.dietary
-        ? item.dietary.split(',').map(diet => diet.trim())
+        ? item.dietary
+            .split(',')
+            .map(diet => diet.trim())
         : [],
       available: Boolean(item.available)
     }));
 
     res.json(menu);
   } catch (error) {
-    console.error(error);
+    console.error('Get menu error:', error);
 
     res.status(500).json({
       error: 'Could not load menu'
@@ -183,9 +296,8 @@ app.get('/api/menu', async (req, res) => {
   }
 });
 
-
-// Add menu item
-app.post('/api/menu', async (req, res) => {
+// Add menu item - ADMIN ONLY
+app.post('/api/menu', requireAdmin, async (req, res) => {
   try {
     const {
       name,
@@ -216,8 +328,8 @@ app.post('/api/menu', async (req, res) => {
 
     const [result] = await db.query(
       `INSERT INTO menu_items
-      (name, description, price, category, weekday, dietary)
-      VALUES (?, ?, ?, ?, ?, ?)`,
+       (name, description, price, category, weekday, dietary)
+       VALUES (?, ?, ?, ?, ?, ?)`,
       [
         name,
         description || null,
@@ -233,7 +345,7 @@ app.post('/api/menu', async (req, res) => {
       id: result.insertId
     });
   } catch (error) {
-    console.error(error);
+    console.error('Add menu error:', error);
 
     res.status(500).json({
       error: 'Could not add menu item'
@@ -241,9 +353,8 @@ app.post('/api/menu', async (req, res) => {
   }
 });
 
-
-// Edit menu item
-app.put('/api/menu/:id', async (req, res) => {
+// Edit menu item - ADMIN ONLY
+app.put('/api/menu/:id', requireAdmin, async (req, res) => {
   try {
     const menuId = Number(req.params.id);
 
@@ -282,8 +393,12 @@ app.put('/api/menu/:id', async (req, res) => {
 
     const [result] = await db.query(
       `UPDATE menu_items
-       SET name = ?, description = ?, price = ?,
-       category = ?, weekday = ?, dietary = ?
+       SET name = ?,
+           description = ?,
+           price = ?,
+           category = ?,
+           weekday = ?,
+           dietary = ?
        WHERE id = ?`,
       [
         name,
@@ -306,7 +421,7 @@ app.put('/api/menu/:id', async (req, res) => {
       message: 'Menu item updated'
     });
   } catch (error) {
-    console.error(error);
+    console.error('Update menu error:', error);
 
     res.status(500).json({
       error: 'Could not update menu item'
@@ -314,9 +429,8 @@ app.put('/api/menu/:id', async (req, res) => {
   }
 });
 
-
-// Delete menu item
-app.delete('/api/menu/:id', async (req, res) => {
+// Delete menu item - ADMIN ONLY
+app.delete('/api/menu/:id', requireAdmin, async (req, res) => {
   try {
     const menuId = Number(req.params.id);
 
@@ -341,7 +455,7 @@ app.delete('/api/menu/:id', async (req, res) => {
       message: 'Menu item deleted'
     });
   } catch (error) {
-    console.error(error);
+    console.error('Delete menu error:', error);
 
     res.status(500).json({
       error: 'Could not delete menu item'
@@ -349,18 +463,16 @@ app.delete('/api/menu/:id', async (req, res) => {
   }
 });
 
-
-// ==========================================
-// SHOPPING CART API
-// ==========================================
+/* ==========================================
+   SHOPPING CART API
+========================================== */
 
 // Get shopping cart
 app.get('/api/cart', (req, res) => {
   res.json(getCart());
 });
 
-
-// Add product to shopping cart
+// Add product to cart
 app.post('/api/cart', (req, res) => {
   const { product, quantity } = req.body;
 
@@ -392,8 +504,7 @@ app.post('/api/cart', (req, res) => {
   res.status(201).json(cart);
 });
 
-
-// Update product quantity
+// Update cart quantity
 app.patch('/api/cart/:id', (req, res) => {
   const productId = Number(req.params.id);
   const { quantity } = req.body;
@@ -427,8 +538,7 @@ app.patch('/api/cart/:id', (req, res) => {
   res.json(cart);
 });
 
-
-// Remove product from shopping cart
+// Remove product from cart
 app.delete('/api/cart/:id', (req, res) => {
   const productId = Number(req.params.id);
 
@@ -443,18 +553,16 @@ app.delete('/api/cart/:id', (req, res) => {
   res.json(cart);
 });
 
-
-// Clear shopping cart
+// Clear cart
 app.delete('/api/cart', (req, res) => {
   const cart = clearCart();
 
   res.json(cart);
 });
 
-
-// ==========================================
-// ORDERS API
-// ==========================================
+/* ==========================================
+   ORDERS API
+========================================== */
 
 // Create order
 app.post('/api/orders', (req, res) => {
@@ -475,15 +583,13 @@ app.post('/api/orders', (req, res) => {
   res.status(201).json(order);
 });
 
-
-// Get all orders
-app.get('/api/orders', (req, res) => {
+// Get all orders - ADMIN ONLY
+app.get('/api/orders', requireAdmin, (req, res) => {
   res.json(getOrders());
 });
 
-
-// Get order by ID
-app.get('/api/orders/:id', (req, res) => {
+// Get one order - ADMIN ONLY
+app.get('/api/orders/:id', requireAdmin, (req, res) => {
   const orderId = Number(req.params.id);
 
   if (Number.isNaN(orderId)) {
@@ -503,9 +609,8 @@ app.get('/api/orders/:id', (req, res) => {
   res.json(order);
 });
 
-
-// Update order status
-app.put('/api/orders/:id/status', (req, res) => {
+// Update order status - ADMIN ONLY
+app.put('/api/orders/:id/status', requireAdmin, (req, res) => {
   const orderId = Number(req.params.id);
   const { status } = req.body;
 
@@ -544,10 +649,21 @@ app.put('/api/orders/:id/status', (req, res) => {
   res.json(order);
 });
 
+/* ==========================================
+   ERROR HANDLER
+========================================== */
 
-// ==========================================
-// START SERVER
-// ==========================================
+app.use((err, req, res, next) => {
+  console.error('Unhandled server error:', err);
+
+  res.status(500).json({
+    error: 'Internal server error'
+  });
+});
+
+/* ==========================================
+   START SERVER
+========================================== */
 
 app.listen(PORT, () => {
   console.log(
